@@ -29,6 +29,7 @@ typedef int64_t         wssize_t;
  *
  */
 typedef uint32_t        lsp_wchar_t;
+typedef int32_t         lsp_swchar_t;
 
 #if defined(PLATFORM_WINDOWS)
     #include <windows.h>

@@ -12,6 +12,7 @@
 #include <core/io/charset.h>
 #include <core/io/Reader.h>
 #include <core/io/Path.h>
+#include <core/io/File.h>
 #include <core/types.h>
 
 namespace lsp
@@ -27,10 +28,10 @@ namespace lsp
                 size_t          bBufPos;
                 size_t          cBufSize;
                 size_t          cBufPos;
-                FILE           *pFD;
-                bool            bClose;
-                status_t        nError;
+                File           *pFD;
+                size_t          nFlags;
                 LSPString       sLine;
+
 #if defined(PLATFORM_WINDOWS)
                 UINT            nCodePage;
 #else
@@ -39,8 +40,7 @@ namespace lsp
     
             protected:
                 void            do_destroy();
-                status_t        initialize(FILE *fd, const char *charset, bool close);
-                status_t        init_buffers();
+                status_t        init_encoding(const char *charset);
                 status_t        fill_char_buf();
 
             public:
@@ -48,25 +48,38 @@ namespace lsp
                 virtual ~FileReader();
 
             public:
-                /** Attach input stream to descriptor. When stream is closed, file descriptor
+                /** Wrap input reader around stdio file descriptor. When stream is closed, file descriptor
                  * keeps to be opened. Before attach currently open stream is closed and it's
                  * state is reset.
                  *
                  * @param fd file descriptor
+                 * @param close close descriptor on reader close
                  * @param charset character set to use, system charset if NULL
                  * @return status of operation
                  */
-                status_t attach(FILE *fd, const char *charset = NULL);
+                status_t wrap(FILE *fd, bool close, const char *charset = NULL);
 
-                /** Open input stream as wrapper of file descriptor. When stream is closed, it automatically
-                 * closes file descriptor. Before open currently open stream is closed and it's
+                /** Wrap input reader around native file descriptor. When stream is closed, file descriptor
+                 * keeps to be opened. Before attach currently open stream is closed and it's
                  * state is reset.
                  *
                  * @param fd file descriptor
+                 * @param close close descriptor on reader close
                  * @param charset character set to use, system charset if NULL
                  * @return status of operation
                  */
-                status_t open(FILE *fd, const char *charset = NULL);
+                status_t wrap(lsp_fhandle_t fd, bool close, const char *charset = NULL);
+
+                /** Wrap input reader around abstract file descriptor. When stream is closed, file descriptor
+                 * keeps to be opened. Before attach currently open stream is closed and it's
+                 * state is reset.
+                 *
+                 * @param fd file descriptor
+                 * @param flags wrapping flags
+                 * @param charset character set to use, system charset if NULL
+                 * @return status of operation
+                 */
+                status_t wrap(File *fd, size_t flags, const char *charset = NULL);
 
                 /** Open input stream associated with file. Before open currently open stream is closed and it's
                  * state is reset.

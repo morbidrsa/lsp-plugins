@@ -23,6 +23,12 @@ namespace lsp
                 Reader();
                 virtual ~Reader();
 
+            protected:
+                status_t    nErrorCode;
+
+            protected:
+                inline status_t set_error(status_t error) { return nErrorCode = error; }
+
             public:
                 /**
                  * Read amount of characters
@@ -63,6 +69,12 @@ namespace lsp
                  * @return status of operation
                  */
                 virtual status_t    close();
+
+                /**
+                 * Return last error code
+                 * @return last error code
+                 */
+                inline status_t last_error() const  { return nErrorCode; };
         };
     }
     
